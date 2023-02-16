@@ -1,0 +1,12 @@
+# - name: nexus configure
+#   hosts: web1
+#   become: true
+#   roles:
+#     - roles/nexus
+  
+- name: sonarqube configure
+  hosts: web2
+  become: true
+  roles:
+    - postgress
+    - roles/sonarqube

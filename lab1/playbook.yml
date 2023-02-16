@@ -1,0 +1,28 @@
+- name: configure Nginx
+  hosts: web
+  become: true
+  tasks:
+    - name: Update package indexes
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: change nginx port
+      replace:
+       path: /etc/nginx/sites-enabled/default
+       regexp: '80'
+       replace: "8090"
+
+    - name: move index file
+      copy:
+        src: ./index.nginx-debian.html
+        dest: /var/www/html
+    - name: restart nginx
+      service: 
+        name: nginx 
+        state: restarted 
+        enabled: yes

@@ -1,0 +1,5 @@
+postgresql_version: 14
+postgresql_packages:
+- postgresql
+- postgresql-contrib
+postgress_password: 1234

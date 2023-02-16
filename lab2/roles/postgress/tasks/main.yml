@@ -1,0 +1,109 @@
+- name: update package indexes
+  apt:
+    update_cache: yes
+  
+- name: install wget
+  apt:
+    name: wget
+    state: present
+
+- name: Install OpenJDK 1.8
+  apt:
+    name: openjdk-11-jdk
+    state: present
+
+- name: get "lsb_release -cs" in a registry
+  command: lsb_release -cs
+  register: lsb_release
+
+- name: add the postgreSQL repo 
+  copy:
+    dest: /etc/apt/sources.list.d/pgdg.list
+    content: deb http://apt.postgresql.org/pub/repos/apt/ {{ lsb_release.stdout }}-pgdg main
+
+
+# - name: get PostgreSQL signing key
+#   get_url:
+#     url: 
+#   register: postgreSQL_key
+
+# - name: adding postgreSQL key
+#   apt_key:
+
+- name: adding postgreSQL key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: install postgresql
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ postgresql_packages }}"
+
+- name: Enable postgresql
+  systemd:
+    name: postgresql
+    enabled: true
+    masked: no
+
+- name: start postgresql
+  service:
+    name: postgresql
+    state: started
+
+- name: Change the default PostgreSQL password. 
+  user:
+    name: postgres
+    #update_password: always
+    password: {{ postgress_password }}
+
+- name: Add new user sonar
+  user:
+    name: sonar
+    comment: sonar
+  #become: yes
+  #become_method: postgres 
+  notify: Restart postgresql
+
+- name: Remove lines from /etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf
+  lineinfile:
+    dest: /etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf
+    line: "{{ item }}"
+    state: absent
+  loop:
+    - "local   all             postgres                                peer"
+    - "local   all             all                                     peer"
+
+- name: Add lines to /etc/postgresql/14/main/pg_hba.conf
+  lineinfile:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    line: "{{ item }}"
+  loop:
+    - "local   all             postgres                                trust"
+    - "local   all             all                                     md5"
+  #notify: Restart postgresql
+
+- name: Restart postgresql
+  become: true
+  service:
+    name: postgresql
+    state: restarted
+    enabled: true
+
+- name: Create the database  
+  postgresql_db:
+    login_user: postgres
+    login_password: "{{ postgres_password }}"
+    name: sonarqube 
+    template: 'template0'
+    state: present
+
+- name: Create sonar user, and grant access
+  postgresql_user:
+    db: sonarqube
+    name: sonar
+    password: my_strong_password
+    priv: ALL
+    expires: infinity
+  
