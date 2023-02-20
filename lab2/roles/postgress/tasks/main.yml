@@ -56,7 +56,7 @@
   user:
     name: postgres
     #update_password: always
-    password: {{ postgress_password }}
+    password: "{{ postgress_password }}"
 
 - name: Add new user sonar
   user:
@@ -94,7 +94,7 @@
 - name: Create the database  
   postgresql_db:
     login_user: postgres
-    login_password: "{{ postgres_password }}"
+    login_password: "{{ postgress_password }}"
     name: sonarqube 
     template: 'template0'
     state: present

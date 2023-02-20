@@ -1,2 +1,5 @@
----
-# handlers file for roles/sonarqube
+- name: Restart postgresql
+  service:
+    name: postgresql
+    state: started
+    enabled: true

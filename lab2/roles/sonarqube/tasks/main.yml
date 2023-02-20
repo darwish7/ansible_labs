@@ -14,7 +14,7 @@
 
 - name: Unzip the downloaded file
   unarchive:
-    src: {{ path }}
+    src: "{{ path }}"
     dest: .
     remote_src: yes
 
