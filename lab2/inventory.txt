@@ -1,2 +1,5 @@
-web1 ansible_host=54.80.255.133 ansible_user=ec2-user  ansible_ssh_private_key_file=./my-pc.pem
-web2 ansible_host=54.227.154.209 ansible_user=ubuntu  ansible_ssh_private_key_file=./my-pc.pem
+[public]
+jumphost ansible_host=3.14.65.40 ansible_user=ubuntu ansible_port=22  ansible_ssh_private_key_file=./lab3.pem
+[private]
+web1 ansible_host=10.0.1.154 ansible_user=ec2-user ansible_port=22 ansible_ssh_private_key_file=./lab3.pem ansible_ssh_common_args='-o ProxyCommand="ssh bastion -W %h:%p"'
+web2 ansible_host=10.0.3.152 ansible_user=ubuntu  ansible_port=22 ansible_ssh_private_key_file=./lab3.pem ansible_ssh_common_args='-o ProxyCommand="ssh bastion -W %h:%p"'
